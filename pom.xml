@@ -2,6 +2,8 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>owasp-java-html-sanitizer</artifactId>
   <packaging>bundle</packaging>
+  <version>20220710.1</version>
+
   <properties>
     <maven.compiler.source>18</maven.compiler.source>
     <maven.compiler.target>18</maven.compiler.target>
