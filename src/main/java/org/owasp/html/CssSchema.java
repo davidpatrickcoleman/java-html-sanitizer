@@ -372,7 +372,7 @@ public final class CssSchema {
         "inline-block", "inline-table", "list-item", "run-in", "table",
         "table-caption", "table-cell", "table-column", "table-column-group",
         "table-footer-group", "table-header-group", "table-row",
-        "table-row-group");
+        "table-row-group", "flex");
     ImmutableSet<String> elevationLiterals0 = ImmutableSet.of(
         "above", "below", "higher", "level", "lower");
     ImmutableSet<String> emptyCellsLiterals0 = ImmutableSet.of("hide", "show");
@@ -418,6 +418,12 @@ public final class CssSchema {
         "circle", "inherit", "none");
     ImmutableSet<String> maxHeightLiterals0 = ImmutableSet.of(
         "auto", "inherit", "none");
+    ImmutableSet<String> justifyContentLiterals0 = ImmutableSet.of(
+            "center", "flex-start", "flex-end", "start", "end", "left", "right");
+    ImmutableSet<String> positionLiterals0 = ImmutableSet.of(
+            "absolute", "relative");
+    ImmutableSet<String> alignItemsLiterals0 = ImmutableSet.of(
+            "center", "stretch", "start", "end");
     ImmutableSet<String> overflowLiterals0 = ImmutableSet.of(
         "auto", "hidden", "inherit", "scroll", "visible");
     ImmutableSet<String> overflowXLiterals0 = ImmutableSet.of(
@@ -432,8 +438,6 @@ public final class CssSchema {
         "high", "low", "x-high", "x-low");
     ImmutableSet<String> playDuringLiterals0 = ImmutableSet.of(
         "auto", "inherit", "mix", "none", "repeat");
-    ImmutableSet<String> positionLiterals0 = ImmutableSet.of(
-        "absolute", "relative", "static");
     ImmutableSet<String> speakLiterals0 = ImmutableSet.of(
         "inherit", "none", "normal", "spell-out");
     ImmutableSet<String> speakHeaderLiterals0 = ImmutableSet.of(
@@ -471,7 +475,7 @@ public final class CssSchema {
         "break-word", "normal");
     ImmutableSet<String> rgb$FunLiterals0 = ImmutableSet.of(",");
     ImmutableSet<String> linearGradient$FunLiterals0 = ImmutableSet.of(
-        ",", "to");
+        ",", "to", "transparent");
     ImmutableSet<String> radialGradient$FunLiterals0 = ImmutableSet.of(
         "at", "closest-corner", "closest-side", "ellipse", "farthest-corner",
         "farthest-side");
@@ -843,6 +847,12 @@ public final class CssSchema {
     builder.put("z-index", bottom);
     builder.put("repeating-linear-gradient()", linearGradient$Fun);
     builder.put("repeating-radial-gradient()", radialGradient$Fun);
+    Property alignItemsAfter = new Property(
+            0, alignItemsLiterals0, zeroFns);
+    builder.put("align-items", alignItemsAfter);
+    Property justifyContent = new Property(
+            0, justifyContentLiterals0, zeroFns);
+    builder.put("justify-content", justifyContent);
     DEFINITIONS = builder.build();
   }
 

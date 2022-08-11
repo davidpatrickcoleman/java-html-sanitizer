@@ -28,6 +28,7 @@
 
 package org.owasp.html;
 
+import com.google.common.collect.ImmutableSet;
 import junit.framework.TestCase;
 
 import java.util.Arrays;
@@ -39,6 +40,152 @@ import org.junit.Test;
 
 @SuppressWarnings("javadoc")
 public class HtmlSanitizerTest extends TestCase {
+
+  static ImmutableSet<String> DEFAULT_WHITELIST = ImmutableSet.of(
+          "-moz-border-radius",
+          "-moz-border-radius-bottomleft",
+          "-moz-border-radius-bottomright",
+          "-moz-border-radius-topleft",
+          "-moz-border-radius-topright",
+          "-moz-box-shadow",
+          "-moz-outline",
+          "-moz-outline-color",
+          "-moz-outline-style",
+          "-moz-outline-width",
+          "-o-text-overflow",
+          "-webkit-border-bottom-left-radius",
+          "-webkit-border-bottom-right-radius",
+          "-webkit-border-radius",
+          "-webkit-border-radius-bottom-left",
+          "-webkit-border-radius-bottom-right",
+          "-webkit-border-radius-top-left",
+          "-webkit-border-radius-top-right",
+          "-webkit-border-top-left-radius",
+          "-webkit-border-top-right-radius",
+          "-webkit-box-shadow",
+          "azimuth",
+          "background",
+          "background-attachment",
+          "background-color",
+          "background-image",
+          "background-position",
+          "background-repeat",
+          "border",
+          "border-bottom",
+          "border-bottom-color",
+          "border-bottom-left-radius",
+          "border-bottom-right-radius",
+          "border-bottom-style",
+          "border-bottom-width",
+          "border-collapse",
+          "border-color",
+          "border-left",
+          "border-left-color",
+          "border-left-style",
+          "border-left-width",
+          "border-radius",
+          "border-right",
+          "border-right-color",
+          "border-right-style",
+          "border-right-width",
+          "border-spacing",
+          "border-style",
+          "border-top",
+          "border-top-color",
+          "border-top-left-radius",
+          "border-top-right-radius",
+          "border-top-style",
+          "border-top-width",
+          "border-width",
+          "box-shadow",
+          "caption-side",
+          "color",
+          "cue",
+          "cue-after",
+          "cue-before",
+          "direction",
+          "elevation",
+          "empty-cells",
+          "font",
+          "font-family",
+          "font-size",
+          "font-stretch",
+          "font-style",
+          "font-variant",
+          "font-weight",
+          "height",
+          "image()",
+          "letter-spacing",
+          "line-height",
+          "linear-gradient()",
+          "list-style",
+          "list-style-image",
+          "list-style-position",
+          "list-style-type",
+          "margin",
+          "margin-bottom",
+          "margin-left",
+          "margin-right",
+          "margin-top",
+          "max-height",
+          "max-width",
+          "min-height",
+          "min-width",
+          "outline",
+          "outline-color",
+          "outline-style",
+          "outline-width",
+          "padding",
+          "padding-bottom",
+          "padding-left",
+          "padding-right",
+          "padding-top",
+          "pause",
+          "pause-after",
+          "pause-before",
+          "pitch",
+          "pitch-range",
+          "quotes",
+          "radial-gradient()",
+          "rect()",
+          "repeating-linear-gradient()",
+          "repeating-radial-gradient()",
+          "rgb()",
+          "rgba()",
+          "hsl()",
+          "hsla()",
+          "richness",
+          "speak",
+          "speak-header",
+          "speak-numeral",
+          "speak-punctuation",
+          "speech-rate",
+          "stress",
+          "table-layout",
+          "text-align",
+          "text-decoration",
+          "text-indent",
+          "text-overflow",
+          "text-shadow",
+          "text-transform",
+          "text-wrap",
+          "unicode-bidi",
+          "vertical-align",
+          "voice-family",
+          "volume",
+          "white-space",
+          "width",
+          "word-spacing",
+          "word-wrap",
+          "display",
+          "align-items",
+          "justify-content",
+          "position",
+          "top",
+          "left",
+          "bottom"
+
+  );
 
   @Test
   public static final void testEmpty() {
@@ -452,6 +599,64 @@ public class HtmlSanitizerTest extends TestCase {
     String input = "<a style=\\006-\\000038";
     String want = "";
     assertEquals(want, sanitize(input));
+  }
+
+  @Test
+  public static final void testStylingAdditionalProperties() {
+
+    String input1 ="<div style=\"margin: 0; padding: 0; height: 100vh; display: flex; justify-content: center; align-items: center\"></div>";
+    String want1 = "<div style=\"margin:0;padding:0;height:100vh;display:flex;justify-content:center;align-items:center\"></div>";
+    assertEquals(want1, sanitize(input1, DEFAULT_WHITELIST));
+
+    String input2 ="<div style=\"background-image: linear-gradient(to right top, green 0%, green 50%, transparent 50%); position: absolute; width: 50%; height: 20%; top: 0; left: 50%\"></div>";
+    String want2 = "<div style=\"background-image:linear-gradient( to right top , green 0% , green 50% , transparent 50% );position:absolute;width:50%;height:20%;top:0;left:50%\"></div>";
+    assertEquals(want2, sanitize(input2, DEFAULT_WHITELIST));
+
+    String input3 ="<div style=\"border-radius: 25px; position: absolute; width: 14%; height: 50%; display: flex; align-items: center; justify-content: center; position: absolute; border: 2px solid white; background: sienna; left: 6%; top: 20%\"></div>";
+    String want3 = "<div style=\"border-radius:25px;position:absolute;width:14%;height:50%;display:flex;align-items:center;justify-content:center;position:absolute;border:2px solid white;background:sienna;left:6%;top:20%\"></div>";
+    assertEquals(want3, sanitize(input3, DEFAULT_WHITELIST));
+  }
+
+  private static String sanitize(@Nullable String html, ImmutableSet<String> definitions) {
+    StringBuilder sb = new StringBuilder();
+    HtmlStreamRenderer renderer = HtmlStreamRenderer.create(
+            sb,
+            new Handler<String>() {
+              public void handle(String errorMessage) {
+                fail(errorMessage);
+              }
+            });
+
+    HtmlSanitizer.Policy policy = new HtmlPolicyBuilder()
+            // Allow these tags.
+            .allowElements(
+                    "a", "b", "br", "div", "i", "iframe", "img", "input", "li",
+                    "ol", "p", "span", "ul", "noscript", "noframes", "noembed", "noxss")
+            // And these attributes.
+            .allowAttributes(
+                    "dir", "checked", "class", "href", "id", "target", "title", "type")
+            .globally()
+            // Cleanup IDs and CLASSes and prefix them with p- to move to a separate
+            // name-space.
+            .allowAttributes("id", "class")
+            .matching(
+                    new AttributePolicy() {
+                      public String apply(
+                              String elementName, String attributeName, String value) {
+                        return value.replaceAll("(?:^|\\s)([a-zA-Z])", " p-$1")
+                                .replaceAll("\\s+", " ")
+                                .trim();
+                      }
+                    })
+            .globally()
+            .allowStyling(CssSchema.withProperties(definitions))
+            // Don't throw out useless <img> and <input> elements to ease debugging.
+            .allowWithoutAttributes("img", "input")
+            .build(renderer);
+
+    HtmlSanitizer.sanitize(html, policy);
+
+    return sb.toString();
   }
 
   private static String sanitize(@Nullable String html) {
